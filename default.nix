@@ -6,9 +6,12 @@
   grim,
   imagemagick,
   wl-clipboard,
+  python3,
+  hyprland,
+  libnotify,
 }:
 stdenvNoCC.mkDerivation {
-  pname = "hyprquickshot";
+  pname = "prometheus-screenshot";
   version = "0.1.0";
 
   src = lib.cleanSource ./.;
@@ -19,14 +22,18 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/share/hyprquickshot
-    cp -r icons shaders src shell.qml $out/share/hyprquickshot/
+    mkdir -p $out/share/prometheus-screenshot
+    cp -r icons shaders src theme shell.qml launch.py capture.py $out/share/prometheus-screenshot/
 
     mkdir -p $out/bin
-    makeWrapper ${quickshell}/bin/quickshell $out/bin/hyprquickshot \
-      --add-flags "-p $out/share/hyprquickshot" \
+    makeWrapper ${python3}/bin/python3 $out/bin/prometheus-screenshot \
+      --add-flags "$out/share/prometheus-screenshot/launch.py" \
       --prefix PATH : ${
         lib.makeBinPath [
+          quickshell
+          python3
+          hyprland
+          libnotify
           grim
           imagemagick
           wl-clipboard
@@ -37,9 +44,9 @@ stdenvNoCC.mkDerivation {
   '';
 
   meta = {
-    description = "A screenshot utility for Hyprland built with Quickshell";
+    description = "A Prometheus-themed screenshot utility for Hyprland built with Quickshell";
     license = lib.licenses.mit;
     platforms = lib.platforms.linux;
-    mainProgram = "hyprquickshot";
+    mainProgram = "prometheus-screenshot";
   };
 }

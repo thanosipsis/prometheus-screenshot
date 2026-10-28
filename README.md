@@ -1,101 +1,84 @@
-# HyprQuickshot
+# Prometheus Screenshot
 
-A simple, (hopefully) beautiful screenshot utility for Hyprland with smooth animations, built with [Quickshell](https://quickshell.org). PRs and contributions are appreciated.
+A Prometheus-themed screenshot overlay for Hyprland, built with Quickshell.
 
-## Demo
+A compact, frosted toolbar switches between **Drag**, **Window**, and **Full screen** capture. The desktop freezes before the overlay opens, so captures never include the controls. Every capture is copied to the clipboard, with optional disk saving.
 
-https://github.com/user-attachments/assets/7e3d5e3c-551a-4458-8dda-06cc3907dd92
+Status: source install, tested on an Arch/CachyOS-style Hyprland session with Quickshell 0.3.2 and fractional scaling. Nix packaging is included but has not been built locally.
 
 ## Dependencies
 
-- [quickshell](https://git.outfoxxed.me/quickshell/quickshell)
-- [grim](https://sr.ht/~emersion/grim/)
-- [imagemagick](https://github.com/ImageMagick/ImageMagick)
-- [wl-clipboard](https://github.com/bugaevc/wl-clipboard)
+- Quickshell 0.3.2 with QtQuick.Effects
+- Hyprland (`hyprctl`)
+- Python 3
+- grim
+- ImageMagick (`magick`)
+- wl-clipboard (`wl-copy`)
+- libnotify (`notify-send`)
+- JetBrainsMono Nerd Font for the Prometheus typography
 
-## Installation
-
-### Nix
-
-If using flakes, add this repo to your flake inputs:
-
-```nix
-{
-  inputs = {
-    hyprquickshot = {
-      url = "github:jamdon2/hyprquickshot";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
-}
-```
-
-The package is available as `hyprquickshot.packages.<system>.default`, which can be added to your `environment.systemPackages` or `home.packages` if you use home-manager.
-
-### Arch
-
-Install dependencies with pacman:
+## Install
 
 ```bash
-pacman -S grim imagemagick wl-clipboard
+mkdir -p "$HOME/Projects"
+git clone https://github.com/thanosipsis/prometheus-screenshot.git "$HOME/Projects/prometheus-screenshot"
+cd "$HOME/Projects/prometheus-screenshot"
+mkdir -p "$HOME/.local/bin"
+ln -s "$PWD/launch.py" "$HOME/.local/bin/prometheus-screenshot"
 ```
 
-And get Quickshell with yay (or your AUR helper of choice)
+Keep the checkout in place; the launcher resolves the project assets from it. Ensure `~/.local/bin` is on your PATH, then run:
 
 ```bash
-yay -S quickshell
+prometheus-screenshot
 ```
 
-Now just clone this repo into Quickshell's config folder
+Or run directly from the checkout:
 
 ```bash
-git clone https://github.com/jamdon2/hyprquickshot ~/.config/quickshell/hyprquickshot
+python3 launch.py
 ```
 
-## Usage
+Always start through the launcher so the desktop is captured before the UI opens.
 
-Now you're ready to launch HyprQuickshot from your terminal, or add it to your Hyprland config.
+## Controls
 
-```bash
-quickshell -c hyprquickshot -n
+| Control | Shortcut | Behavior |
+| --- | --- | --- |
+| Drag | 1 | Drag a rectangle and release to capture |
+| Window | 2 | Hover to highlight; click or press Enter to capture |
+| Full screen | 3 | Select the mode, then click Capture or press Enter |
+| Save | S | Toggle disk saving; clipboard copy is always enabled |
+| Cancel | Escape | Close without capturing |
+
+The overlay covers the display focused when launched. To capture another display, focus it and launch again. Window captures include only the visible portion on that display; obscured content is not reconstructed. Selections spanning multiple displays are not supported.
+
+## Hyprland binding
+
+Lua configuration:
+
+```lua
+hl.bind("Print", hl.dsp.exec_cmd("prometheus-screenshot"))
 ```
 
-> If you've installed package using nix flake, you should use `hyprquickshot` command instead.
-
-You can remove the `-n` if you want to allow multiple instances of HyprQuickshot to be open (like wanting to screenshot HyprQuickshot for whatever reason).
-
-Add this line to your `hyprland.conf` to bind HyprQuickshot to the Print Screen button on your keyboard.
+Hyprlang configuration:
 
 ```hypr
-bind = , Print, exec, quickshell -c hyprquickshot -n
-```
-
-Or this to bind it to Meta + Shift + A
-
-```hypr
-bind = $mainMod+SHIFT, A, exec, quickshell -c hyprquickshot -n
+bind = , Print, exec, prometheus-screenshot
 ```
 
 ## Configuration
 
-You can choose a custom screenshot folder by setting the `HQS_DIR` environment variable.
+The default save folder is `~/Pictures/Screenshots`, created automatically. Set `PROMETHEUS_SCREENSHOT_DIR` to override it; `HQS_DIR` is supported as a compatibility fallback.
 
-If `HQS_DIR` is not set, HyprQuickshot will try to find a suitable directory in the following order:
+```bash
+PROMETHEUS_SCREENSHOT_DIR="$HOME/Pictures/Captures" prometheus-screenshot
+```
 
-1. `$XDG_SCREENSHOTS_DIR`
+The Save preference persists in `capture.ini` under this shell's Quickshell state directory. Colors and fonts live in `theme/Theme.qml`.
 
-1. `$XDG_PICTURES_DIR`
+The launcher uses private temporary directories and prevents duplicate overlays. Crops account for fractional display scaling. Clipboard ownership is established after Quickshell exits so the copied image remains available.
 
-1. `$HOME/Pictures`
+## Attribution
 
-## Known issues
-
-- If you have high resolution monitors, grim might take a few seconds to save the screenshot, and if you select any option before that, your screenshot won't be saved. This will be fixed in the next release.
-
-## TODO
-
-- [x] Speed up grim by supplying the geometry of the selected monitor
-- [ ] Add more animations and improve UI/UX
-- [ ] Optimize shader (remove branching and add AA)
-- [ ] Eliminate some dependencies
-- [ ] Rewrite in Rust :)
+Based on [JamDon2/hyprquickshot](https://github.com/JamDon2/hyprquickshot), customized for the Prometheus desktop. Distributed under the [MIT license](LICENSE.md).

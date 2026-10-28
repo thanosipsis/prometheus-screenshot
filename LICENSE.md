@@ -2,7 +2,8 @@
 The MIT License (MIT)
 =====================
 
-Copyright © 2025 JamDon2 
+Copyright © 2025 JamDon2
+Copyright © 2026 Thano Sipsis
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

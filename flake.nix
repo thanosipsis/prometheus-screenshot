@@ -1,5 +1,5 @@
 {
-  description = "A screenshot utility for Hyprland";
+  description = "A Prometheus-themed screenshot utility for Hyprland";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
